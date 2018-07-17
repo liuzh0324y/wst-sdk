@@ -1,6 +1,6 @@
 package im
 
-import "github.com/wst-libs/wst-sdk/utils"
+import "github.com/wst-libs/wstsdk/utils"
 
 ///
 /// Create session
@@ -41,27 +41,27 @@ type ResponseDelSession struct {
 ///
 /// Query session information
 ///
-type QuerySession struct {
+type GetSession struct {
 	List []utils.RoomInfo `json:"list"`
 	Size int64            `json:"size"`
 }
 
-type ResponseQuerySession struct {
+type ResponseGetSession struct {
 	utils.ResponseCommon
-	QuerySession `json:"data"`
+	GetSession `json:"data"`
 }
 
 ///
 /// Query the list of users of the session
 ///
-type QuerySessionUsers struct {
+type GetSessionUsers struct {
 	List []utils.ID `json:"list"`
 	Size int64      `json:"size"`
 }
 
-type ResponseQuerySessionUsers struct {
+type ResponseGetSessionUsers struct {
 	utils.ResponseCommon
-	QuerySessionUsers `json:"data"`
+	GetSessionUsers `json:"data"`
 }
 
 ///
@@ -74,7 +74,7 @@ type RequestJoinSession struct {
 	utils.RequestCommon
 }
 
-type QuestJoinSession struct {
+type ResponseJoinSession struct {
 	utils.ResponseCommon
 }
 
