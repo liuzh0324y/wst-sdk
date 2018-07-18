@@ -13,7 +13,7 @@ type Controller struct {
 ///
 func (this *Controller) RegisterUsers() {
 	SetOutPutHeader(this.Ctx)
-	this.Ctx.Output.Body(RegisterUsersHandler(this.Ctx.Input.RequestBody))
+	this.Ctx.Output.Body(RegisterUsersHandler(this.Ctx))
 }
 
 ///

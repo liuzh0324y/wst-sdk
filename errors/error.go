@@ -15,7 +15,7 @@ const (
 ///
 func ParseJsonFailed() []byte {
 	comm := utils.ResponseCommon{
-		Version: "V1.0",
+		Version: utils.Version,
 		SeqNum:  1,
 		From:    "",
 		To:      "",
@@ -26,5 +26,17 @@ func ParseJsonFailed() []byte {
 	}
 	out, _ := json.Marshal(comm)
 
+	return out
+}
+
+///
+/// Request param is null
+///
+func RequestParamFiled() []byte {
+	comm := utils.ResponseCommon{
+		Version: utils.Version,
+		SeqNum:  1,
+	}
+	out, _ := json.Marshal(comm)
 	return out
 }

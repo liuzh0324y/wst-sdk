@@ -1,5 +1,9 @@
 package utils
 
+const (
+	Version = "V1.0"
+)
+
 ///
 /// Common request structure
 ///

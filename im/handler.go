@@ -7,6 +7,7 @@ import (
 
 	"github.com/astaxie/beego/context"
 	"github.com/wst-libs/wstsdk/errors"
+	"github.com/wst-libs/wstsdk/im/sdk"
 	"github.com/wst-libs/wstsdk/utils"
 )
 
@@ -28,21 +29,31 @@ func ParseInputHander(ctx *context.Context) error {
 ///
 /// Processing user registration
 ///
-func RegisterUsersHandler(body []byte) []byte {
+func RegisterUsersHandler(ctx *context.Context) []byte {
 	var request RequestRegisteredUsers
 
-	err := json.Unmarshal(body, &request)
+	err := json.Unmarshal(ctx.Input.RequestBody, &request)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		return errors.ParseJsonFailed()
 	}
 
+	uid := ctx.Input.Param(":uid")
+	s := sdk.NewRCServer()
+	token := s.GetTokenFromUser(uid, request.RegisteredUsers.Name, request.RegisteredUsers.Portrait)
+
 	v := ResponseRegisteredUsers{
 		utils.ResponseCommon{
-			Version: "V1.0",
+			Version: utils.Version,
+			SeqNum:  request.SeqNum,
+			From:    request.From,
+			To:      request.To,
+			// Type:    request.Type,
+			Number: request.Number,
+			Code:   0,
 		},
 		utils.TOKEN{
-			Token: "",
+			Token: token,
 		},
 	}
 	out, err := json.Marshal(v)
