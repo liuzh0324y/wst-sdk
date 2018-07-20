@@ -66,21 +66,25 @@ func RegisterUsersHandler(ctx *context.Context) []byte {
 ///
 /// Processing create session
 ///
-func CreateSessionHandler(body []byte) []byte {
+func CreateSessionHandler(ctx *context.Context) []byte {
 	var request RequestCreateSession
 
-	err := json.Unmarshal(body, &request)
+	err := json.Unmarshal(ctx.Input.RequestBody, &request)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		return errors.ParseJsonFailed()
 	}
+
+	sid := ctx.Input.Param(":sid")
+	s := sdk.NewRCServer()
+	s.CreateChatRoom(sid, request.Name)
 
 	v := ResponseCreateSession{
 		utils.ResponseCommon{
 			Version: "V1.0",
 		},
 		utils.ID{
-			Id: "",
+			Id: sid,
 		},
 	}
 	out, err := json.Marshal(v)
@@ -92,13 +96,19 @@ func CreateSessionHandler(body []byte) []byte {
 ///
 /// Processing delete session
 ///
-func DeleteSessionHandler(body []byte) []byte {
+func DeleteSessionHandler(ctx *context.Context) []byte {
 	var request RequestDelSession
-	err := json.Unmarshal(body, &request)
+	err := json.Unmarshal(ctx.Input.RequestBody, &request)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		return errors.ParseJsonFailed()
 	}
+	ids := make([]string, request.Size)
+	for i, v := range request.List {
+		ids[i] = v.Id
+	}
+	s := sdk.NewRCServer()
+	s.DeleteChatRoom(ids)
 
 	v := ResponseDelSession{
 		utils.ResponseCommon{
@@ -115,13 +125,18 @@ func DeleteSessionHandler(body []byte) []byte {
 ///
 /// Processing delete session by session id
 ///
-func DeleteSessionByIDHandler(body []byte) []byte {
+func DeleteSessionByIDHandler(ctx *context.Context) []byte {
 	var request RequestDelSession
-	err := json.Unmarshal(body, &request)
+	err := json.Unmarshal(ctx.Input.RequestBody, &request)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		return errors.ParseJsonFailed()
 	}
+
+	sid := ctx.Input.Param(":sid")
+
+	s := sdk.NewRCServer()
+	s.DeleteChatRoom([]string{sid})
 
 	v := ResponseDelSession{
 		utils.ResponseCommon{
@@ -138,14 +153,15 @@ func DeleteSessionByIDHandler(body []byte) []byte {
 ///
 /// Processing delete session by user id
 ///
-func DeleteSessionByUIDHandler(body []byte) []byte {
+func DeleteSessionByUIDHandler(ctx *context.Context) []byte {
 	var request RequestDelSession
-	err := json.Unmarshal(body, &request)
+	err := json.Unmarshal(ctx.Input.RequestBody, &request)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		return errors.ParseJsonFailed()
 	}
 
+	// s := sdk.NewRCServer()
 	v := ResponseDelSession{
 		utils.ResponseCommon{
 			Version: "V1.0",
@@ -161,7 +177,7 @@ func DeleteSessionByUIDHandler(body []byte) []byte {
 ///
 /// Processing get session
 ///
-func GetSessionHandler(body []byte) []byte {
+func GetSessionHandler(ctx *context.Context) []byte {
 
 	v := ResponseGetSession{
 		utils.ResponseCommon{
@@ -169,6 +185,8 @@ func GetSessionHandler(body []byte) []byte {
 		},
 		GetSession{},
 	}
+	// s := sdk.NewRCServer()
+	// s.GetAllChatRoom()
 	out, err := json.Marshal(v)
 	if err != nil {
 
@@ -177,15 +195,21 @@ func GetSessionHandler(body []byte) []byte {
 }
 
 ///
-/// Processing get session by session id
+/// Processing get session infomation by session id
 ///
-func GetSessionByIDHandler(body []byte) []byte {
+func GetSessionByIDHandler(ctx *context.Context) []byte {
+
+	sid := ctx.Input.Param(":sid")
+	s := sdk.NewRCServer()
+	s.GetChatRoomById([]string{sid})
+
 	v := ResponseGetSession{
 		utils.ResponseCommon{
 			Version: "V1.0",
 		},
 		GetSession{},
 	}
+
 	out, err := json.Marshal(v)
 	if err != nil {
 
@@ -196,7 +220,7 @@ func GetSessionByIDHandler(body []byte) []byte {
 ///
 /// Processing get session by user id
 ///
-func GetSessionByUIDHandler(body []byte) []byte {
+func GetSessionByUIDHandler(ctx *context.Context) []byte {
 	v := ResponseGetSession{
 		utils.ResponseCommon{
 			Version: "V1.0",
@@ -213,13 +237,17 @@ func GetSessionByUIDHandler(body []byte) []byte {
 ///
 /// Processing get users by session id
 ///
-func GetUsersBySessionIDHandler(body []byte) []byte {
+func GetUsersBySessionIDHandler(ctx *context.Context) []byte {
 	v := ResponseGetSessionUsers{
 		utils.ResponseCommon{
 			Version: "V1.0",
 		},
 		GetSessionUsers{},
 	}
+
+	uid := ctx.Input.Param(":uid")
+	s := sdk.NewRCServer()
+	s.GetUsersByRoomId(uid)
 
 	out, err := json.Marshal(v)
 	if err != nil {
@@ -228,13 +256,18 @@ func GetUsersBySessionIDHandler(body []byte) []byte {
 	return out
 }
 
-func PutSessionByUIDHandler(body []byte) []byte {
+func PutSessionByUIDHandler(ctx *context.Context) []byte {
 	var request RequestJoinSession
-	err := json.Unmarshal(body, &request)
+	err := json.Unmarshal(ctx.Input.RequestBody, &request)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		return errors.ParseJsonFailed()
 	}
+
+	uid := ctx.Input.Param(":uid")
+	sid := ctx.Input.Param(":sid")
+	s := sdk.NewRCServer()
+	s.JoinRoomByUserId(uid, sid)
 
 	v := ResponseJoinSession{
 		utils.ResponseCommon{
@@ -248,13 +281,24 @@ func PutSessionByUIDHandler(body []byte) []byte {
 	return out
 }
 
-func PostMessageToUserByIDHandler(body []byte) []byte {
+func PostMessageToUserByIDHandler(ctx *context.Context) []byte {
 	var request RequestSendMessage
-	err := json.Unmarshal(body, &request)
+	err := json.Unmarshal(ctx.Input.RequestBody, &request)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		return errors.ParseJsonFailed()
 	}
+
+	sourceId := request.Uid
+	targetId := ctx.Input.Param(":uid")
+	content := request.Content
+
+	log.Println("source id: ", sourceId)
+	log.Println("target id: ", targetId)
+	log.Println("content is: ", content)
+
+	s := sdk.NewRCServer()
+	s.SendMsgUserToUsers(sourceId, targetId, content)
 
 	v := ResponseSendMessage{
 		utils.ResponseCommon{
@@ -268,9 +312,9 @@ func PostMessageToUserByIDHandler(body []byte) []byte {
 	return out
 }
 
-func PostMessageToSessionByIDHandler(body []byte) []byte {
+func PostMessageToSessionByIDHandler(ctx *context.Context) []byte {
 	var request RequestSendMessage
-	err := json.Unmarshal(body, &request)
+	err := json.Unmarshal(ctx.Input.RequestBody, &request)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		return errors.ParseJsonFailed()

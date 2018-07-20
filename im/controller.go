@@ -21,7 +21,7 @@ func (this *Controller) RegisterUsers() {
 ///
 func (this *Controller) CreateSession() {
 	SetOutPutHeader(this.Ctx)
-	this.Ctx.Output.Body(CreateSessionHandler(this.Ctx.Input.RequestBody))
+	this.Ctx.Output.Body(CreateSessionHandler(this.Ctx))
 }
 
 ///
@@ -29,7 +29,7 @@ func (this *Controller) CreateSession() {
 ///
 func (this *Controller) DeleteSession() {
 	SetOutPutHeader(this.Ctx)
-	this.Ctx.Output.Body(DeleteSessionHandler(this.Ctx.Input.RequestBody))
+	this.Ctx.Output.Body(DeleteSessionHandler(this.Ctx))
 }
 
 ///
@@ -37,7 +37,7 @@ func (this *Controller) DeleteSession() {
 ///
 func (this *Controller) DeleteSessionByID() {
 	SetOutPutHeader(this.Ctx)
-	this.Ctx.Output.Body(DeleteSessionByIDHandler(this.Ctx.Input.RequestBody))
+	this.Ctx.Output.Body(DeleteSessionByIDHandler(this.Ctx))
 }
 
 ///
@@ -45,7 +45,7 @@ func (this *Controller) DeleteSessionByID() {
 ///
 func (this *Controller) DeleteSessionByUID() {
 	SetOutPutHeader(this.Ctx)
-	this.Ctx.Output.Body(DeleteSessionByUIDHandler(this.Ctx.Input.RequestBody))
+	this.Ctx.Output.Body(DeleteSessionByUIDHandler(this.Ctx))
 }
 
 ///
@@ -53,7 +53,7 @@ func (this *Controller) DeleteSessionByUID() {
 ///
 func (this *Controller) GetSession() {
 	SetOutPutHeader(this.Ctx)
-	this.Ctx.Output.Body(GetSessionHandler(this.Ctx.Input.RequestBody))
+	this.Ctx.Output.Body(GetSessionHandler(this.Ctx))
 }
 
 ///
@@ -61,7 +61,7 @@ func (this *Controller) GetSession() {
 ///
 func (this *Controller) GetSessionByID() {
 	SetOutPutHeader(this.Ctx)
-	this.Ctx.Output.Body(GetSessionByIDHandler(this.Ctx.Input.RequestBody))
+	this.Ctx.Output.Body(GetSessionByIDHandler(this.Ctx))
 }
 
 ///
@@ -69,7 +69,7 @@ func (this *Controller) GetSessionByID() {
 ///
 func (this *Controller) GetSessionByUID() {
 	SetOutPutHeader(this.Ctx)
-	this.Ctx.Output.Body(GetSessionByUIDHandler(this.Ctx.Input.RequestBody))
+	this.Ctx.Output.Body(GetSessionByUIDHandler(this.Ctx))
 }
 
 ///
@@ -77,7 +77,7 @@ func (this *Controller) GetSessionByUID() {
 ///
 func (this *Controller) GetUsersBySessionID() {
 	SetOutPutHeader(this.Ctx)
-	this.Ctx.Output.Body(GetUsersBySessionIDHandler(this.Ctx.Input.RequestBody))
+	this.Ctx.Output.Body(GetUsersBySessionIDHandler(this.Ctx))
 }
 
 ///
@@ -85,7 +85,7 @@ func (this *Controller) GetUsersBySessionID() {
 ///
 func (this *Controller) PutSessionByUID() {
 	SetOutPutHeader(this.Ctx)
-	this.Ctx.Output.Body(PutSessionByUIDHandler(this.Ctx.Input.RequestBody))
+	this.Ctx.Output.Body(PutSessionByUIDHandler(this.Ctx))
 }
 
 ///
@@ -93,7 +93,7 @@ func (this *Controller) PutSessionByUID() {
 ///
 func (this *Controller) PostMessageToUserByID() {
 	SetOutPutHeader(this.Ctx)
-	this.Ctx.Output.Body(PostMessageToUserByIDHandler(this.Ctx.Input.RequestBody))
+	this.Ctx.Output.Body(PostMessageToUserByIDHandler(this.Ctx))
 }
 
 ///
@@ -101,5 +101,5 @@ func (this *Controller) PostMessageToUserByID() {
 ///
 func (this *Controller) PostMessageToSessionByID() {
 	SetOutPutHeader(this.Ctx)
-	this.Ctx.Output.Body(PostMessageToSessionByIDHandler(this.Ctx.Input.RequestBody))
+	this.Ctx.Output.Body(PostMessageToSessionByIDHandler(this.Ctx))
 }
