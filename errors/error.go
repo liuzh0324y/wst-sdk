@@ -9,14 +9,16 @@ import (
 )
 
 const (
-	JsonParseErr = 4001 // error json format
-	VersionErr   = 4002 // unknown version
-	SeqnumErr    = 4003 // seqnum is null
-	FromErr      = 4004 // unknown from address
-	ToErr        = 4005 // unknown to address
-	TypeErr      = 4006 // unknown service type
-	UidErr       = 4007 // err uid format or null
-	UserTokenErr = 4008 // failed to get the user token
+	JsonParseErr     = 4001 // error json format
+	VersionErr       = 4002 // unknown version
+	SeqnumErr        = 4003 // seqnum is null
+	FromErr          = 4004 // unknown from address
+	ToErr            = 4005 // unknown to address
+	TypeErr          = 4006 // unknown service type
+	UidErr           = 4007 // err uid format or null
+	UserTokenErr     = 4008 // failed to get the user token
+	CreateSessionErr = 4009 // failed to create the session by session id
+	DeleteSessionErr = 4010 // failed to delete the session by session id
 )
 
 type CodeResult struct {
@@ -115,10 +117,10 @@ func VerifyUid(uid string) error {
 	return nil
 }
 
-// Failed to get user token
-func GetTokenErr(req utils.RequestCommon, msg string) []byte {
+// Failed to Rongcloud
+func ImplementErr(code int64, req utils.RequestCommon, msg string) []byte {
 	out := utils.ResponseCommon{
-		Code:    UserTokenErr,
+		Code:    code,
 		Message: msg,
 		Version: req.Version,
 		SeqNum:  req.SeqNum,

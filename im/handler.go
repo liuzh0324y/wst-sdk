@@ -47,17 +47,15 @@ func RegisterUsersHandler(ctx *context.Context) []byte {
 	uid := ctx.Input.Param(":uid")
 	err = errors.VerifyUid(uid)
 	if err != nil {
-		ret := errors.CodeResult{
-			utils.ResponseCommon{
-				Code:    errors.UidErr,
-				Message: err.Error(),
-				Version: request.RequestCommon.Version,
-				SeqNum:  request.RequestCommon.SeqNum,
-				From:    request.RequestCommon.From,
-				To:      request.RequestCommon.To,
-				Type:    request.RequestCommon.Type,
-				Number:  request.RequestCommon.Number,
-			},
+		ret := utils.ResponseCommon{
+			Code:    errors.UidErr,
+			Message: err.Error(),
+			Version: request.RequestCommon.Version,
+			SeqNum:  request.RequestCommon.SeqNum,
+			From:    request.RequestCommon.From,
+			To:      request.RequestCommon.To,
+			Type:    request.RequestCommon.Type,
+			Number:  request.RequestCommon.Number,
 		}
 		out, _ := json.Marshal(ret)
 		return out
@@ -66,7 +64,7 @@ func RegisterUsersHandler(ctx *context.Context) []byte {
 	s := sdk.NewRCServer()
 	token, err := s.GetTokenFromUser(uid, request.RegisteredUsers.Name, request.RegisteredUsers.Portrait)
 	if err != nil {
-		return errors.GetTokenErr(request.RequestCommon, err.Error())
+		return errors.ImplementErr(errors.UserTokenErr, request.RequestCommon, err.Error())
 	}
 
 	v := ResponseRegisteredUsers{
@@ -92,27 +90,54 @@ func RegisterUsersHandler(ctx *context.Context) []byte {
 
 // Processing create session
 func CreateSessionHandler(ctx *context.Context) []byte {
+	// Parse request body to json
 	var request RequestCreateSession
-
 	err := json.Unmarshal(ctx.Input.RequestBody, &request)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		return errors.ParseJsonFailed()
 	}
 
+	// Check request common param
 	com := errors.IsCommonErr(request.RequestCommon)
 	if com.Code != 0 {
 		outerr, _ := json.Marshal(com)
 		return outerr
 	}
 
+	// Get session id by uri
 	sid := ctx.Input.Param(":sid")
+	err = errors.VerifyUid(sid)
+	if err != nil {
+		ret := utils.ResponseCommon{
+			Code:    errors.UidErr,
+			Message: err.Error(),
+			Version: request.RequestCommon.Version,
+			SeqNum:  request.RequestCommon.SeqNum,
+			From:    request.RequestCommon.From,
+			To:      request.RequestCommon.To,
+			Type:    request.RequestCommon.Type,
+			Number:  request.RequestCommon.Number,
+		}
+		out, _ := json.Marshal(ret)
+		return out
+	}
+
 	s := sdk.NewRCServer()
-	s.CreateChatRoom(sid, request.Name)
+	err = s.CreateChatRoom(sid, request.Name)
+	if err != nil {
+		return errors.ImplementErr(errors.CreateSessionErr, request.RequestCommon, err.Error())
+	}
 
 	v := ResponseCreateSession{
 		utils.ResponseCommon{
-			Version: "V1.0",
+			Version: utils.Version,
+			SeqNum:  request.RequestCommon.SeqNum,
+			From:    request.RequestCommon.From,
+			To:      request.RequestCommon.To,
+			Type:    request.RequestCommon.Type,
+			Number:  request.RequestCommon.Number,
+			Code:    0,
 		},
 		utils.ID{
 			Id: sid,
@@ -126,29 +151,39 @@ func CreateSessionHandler(ctx *context.Context) []byte {
 
 // Processing delete session
 func DeleteSessionHandler(ctx *context.Context) []byte {
+	// Parse request body to json
 	var request RequestDelSession
 	err := json.Unmarshal(ctx.Input.RequestBody, &request)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		return errors.ParseJsonFailed()
 	}
-
+	// Check request common params
 	com := errors.IsCommonErr(request.RequestCommon)
 	if com.Code != 0 {
 		outerr, _ := json.Marshal(com)
 		return outerr
 	}
-
+	// Get session id by request params
 	ids := make([]string, request.Size)
 	for i, v := range request.List {
 		ids[i] = v.Id
 	}
 	s := sdk.NewRCServer()
-	s.DeleteChatRoom(ids)
+	err = s.DeleteChatRoom(ids)
+	if err != nil {
+		return errors.ImplementErr(errors.DeleteSessionErr, request.RequestCommon, err.Error())
+	}
 
 	v := ResponseDelSession{
 		utils.ResponseCommon{
-			Version: "V1.0",
+			Version: utils.Version,
+			SeqNum:  request.RequestCommon.SeqNum,
+			From:    request.RequestCommon.From,
+			To:      request.RequestCommon.To,
+			Type:    request.RequestCommon.Type,
+			Number:  request.RequestCommon.Number,
+			Code:    0,
 		},
 	}
 	out, err := json.Marshal(v)
@@ -160,13 +195,14 @@ func DeleteSessionHandler(ctx *context.Context) []byte {
 
 // Processing delete session by session id
 func DeleteSessionByIDHandler(ctx *context.Context) []byte {
+	// Parse request body to json
 	var request RequestDelSession
 	err := json.Unmarshal(ctx.Input.RequestBody, &request)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 		return errors.ParseJsonFailed()
 	}
-
+	// Check request common
 	com := errors.IsCommonErr(request.RequestCommon)
 	if com.Code != 0 {
 		outerr, _ := json.Marshal(com)

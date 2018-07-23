@@ -1,7 +1,6 @@
 package sdk
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/rongcloud/server-sdk-go/RCServerSDK"
@@ -31,25 +30,30 @@ func (s *RCServer) GetTokenFromUser(uid, name, portraitUri string) (string, erro
 	return ret.Token, nil
 }
 
-func (s *RCServer) CreateChatRoom(id, name string) {
+func (s *RCServer) CreateChatRoom(id, name string) error {
 	log.Println("id:", id)
 	var roominfo = rcserversdk.ChatRoomInfo{Id: id, Name: name}
-	ret, _ := rongcloud.Chatroom.Create([]rcserversdk.ChatRoomInfo{roominfo})
-	if ret.Code != 200 {
+	ret, err := rongcloud.Chatroom.Create([]rcserversdk.ChatRoomInfo{roominfo})
 
+	if err != nil {
+		log.Println("CreateChatRoom Error: ", err.Error())
+		return err
 	}
-	fmt.Printf("%v\n", ret)
+	log.Printf("%v\n", ret)
+	return nil
 }
 
-func (s *RCServer) DeleteChatRoom(ids []string) {
+func (s *RCServer) DeleteChatRoom(ids []string) error {
 	for v := range ids {
 		log.Println(v)
 	}
-	ret, _ := rongcloud.Chatroom.Destroy(ids)
-	if ret.Code != 200 {
-
+	ret, err := rongcloud.Chatroom.Destroy(ids)
+	if err != nil {
+		log.Println("DeleteChatRoom Error: ", err.Error())
+		return err
 	}
-	fmt.Printf("%v\n", ret)
+	log.Printf("%v\n", ret)
+	return nil
 }
 
 func (s *RCServer) GetChatRoomById(ids []string) {
