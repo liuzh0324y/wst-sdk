@@ -20,14 +20,15 @@ func NewRCServer() *RCServer {
 	return &RCServer{}
 }
 
-func (s *RCServer) GetTokenFromUser(uid, name, portraitUri string) string {
-	ret, _ := rongcloud.User.GetToken(uid, name, portraitUri)
-	if ret.Code != 200 {
-
+func (s *RCServer) GetTokenFromUser(uid, name, portraitUri string) (string, error) {
+	ret, err := rongcloud.User.GetToken(uid, name, portraitUri)
+	if err != nil {
+		log.Println("GetToken Error: ", err.Error())
+		return "", err
 	}
 
-	fmt.Printf("%v\n", ret)
-	return ret.Token
+	log.Printf("%v\n", ret)
+	return ret.Token, nil
 }
 
 func (s *RCServer) CreateChatRoom(id, name string) {
@@ -78,6 +79,23 @@ func (s *RCServer) SendMsgUserToUsers(formId, toId, content string) {
 	vmsg.Content = content
 
 	ret, err := rongcloud.Message.PublishPrivate(formId, []string{toId}, vmsg, content, "", "", 0, 1, 1, 1)
+	if err != nil {
+		log.Println("Error: ", err.Error())
+	}
+	if ret.Code != 200 {
+
+	}
+	log.Printf("response: %v\n", ret)
+}
+
+func (s *RCServer) SendMsgUserToSession(formId, toSession, content string) {
+
+	msg := rcserversdk.TxtMessage{
+		Content: content,
+	}
+	msg.SetType("RC:TxtMsg")
+
+	ret, err := rongcloud.Message.PublishChatroom(formId, []string{toSession}, msg)
 	if err != nil {
 		log.Println("Error: ", err.Error())
 	}

@@ -2,6 +2,12 @@ package im
 
 import "github.com/wst-libs/wstsdk/utils"
 
+const (
+	Version = "V1.0"
+)
+
+
+
 ///
 /// Create session
 ///
