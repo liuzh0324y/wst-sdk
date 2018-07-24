@@ -82,16 +82,21 @@ func (s *RCServer) GetChatRoomById(id string) (RoomInfo, error) {
 	}, nil
 }
 
-func (s *RCServer) GetUsersByRoomId(id string) []string {
-	ret, _ := rongcloud.Chatroom.QueryUser(id, "500", "1")
-	if ret.Code != 200 {
-
+func (s *RCServer) GetUsersByRoomId(id string) ([]string, error) {
+	ret, err := rongcloud.Chatroom.QueryUser(id, "500", "1")
+	if err != nil {
+		log.Println("GetUsersByRoomId Error: ", err.Error())
+		return []string{}, err
+	}
+	if len(ret.Users) == 0 {
+		log.Println("GetUsersByRoomId Error: Not found users in room")
+		return []string{}, errors.New("Not found users in room")
 	}
 	var users []string
 	for i, user := range ret.Users {
 		users[i] = user.Id
 	}
-	return users
+	return users, nil
 }
 
 func (s *RCServer) JoinRoomByUserId(uid, sid string) {

@@ -345,7 +345,10 @@ func GetUsersBySessionIDHandler(ctx *context.Context) []byte {
 	uid := ctx.Input.Param(":sid")
 
 	s := sdk.NewRCServer()
-	users := s.GetUsersByRoomId(uid)
+	users, err := s.GetUsersByRoomId(uid)
+	if err != nil {
+		return errors.ImplementErr(errors.DeleteSessionErr, utils.RequestCommon{}, err.Error())
+	}
 
 	var userIds []utils.ID
 	for i, v := range users {
