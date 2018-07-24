@@ -212,12 +212,19 @@ func DeleteSessionByIDHandler(ctx *context.Context) []byte {
 	sid := ctx.Input.Param(":sid")
 
 	s := sdk.NewRCServer()
-	s.DeleteChatRoom([]string{sid})
+	err = s.DeleteChatRoom([]string{sid})
+	if err != nil {
+		return errors.ImplementErr(errors.DeleteSessionErr, request.RequestCommon, err.Error())
+	}
 
-	v := ResponseDelSession{
-		utils.ResponseCommon{
-			Version: "V1.0",
-		},
+	v := utils.ResponseCommon{
+		Version: utils.Version,
+		SeqNum:  request.RequestCommon.SeqNum,
+		From:    request.RequestCommon.From,
+		To:      request.RequestCommon.To,
+		Type:    request.RequestCommon.Type,
+		Number:  request.RequestCommon.Number,
+		Code:    0,
 	}
 	out, err := json.Marshal(v)
 	if err != nil {
@@ -226,7 +233,7 @@ func DeleteSessionByIDHandler(ctx *context.Context) []byte {
 	return out
 }
 
-// Processing delete session by user id
+// Processing delete session by user id (deprecated)
 func DeleteSessionByUIDHandler(ctx *context.Context) []byte {
 	var request RequestDelSession
 	err := json.Unmarshal(ctx.Input.RequestBody, &request)
@@ -254,7 +261,7 @@ func DeleteSessionByUIDHandler(ctx *context.Context) []byte {
 	return out
 }
 
-// Processing get session
+// Processing get session (deprecated)
 func GetSessionHandler(ctx *context.Context) []byte {
 
 	v := ResponseGetSession{
@@ -277,13 +284,31 @@ func GetSessionByIDHandler(ctx *context.Context) []byte {
 
 	sid := ctx.Input.Param(":sid")
 	s := sdk.NewRCServer()
-	s.GetChatRoomById([]string{sid})
+	info, err := s.GetChatRoomById(sid)
+	if err != nil {
+		return errors.ImplementErr(errors.DeleteSessionErr, utils.RequestCommon{}, err.Error())
+	}
 
 	v := ResponseGetSession{
 		utils.ResponseCommon{
-			Version: "V1.0",
+			Version: utils.Version,
+			SeqNum:  1,
+			From:    "",
+			To:      "",
+			Type:    "",
+			Number:  "",
+			Code:    0,
 		},
-		GetSession{},
+		GetSession{
+			List: []utils.RoomInfo{
+				utils.RoomInfo{
+					Id:         info.Id,
+					Name:       info.Name,
+					CreateTime: info.Time,
+				},
+			},
+			Size: 1,
+		},
 	}
 
 	out, err := json.Marshal(v)
@@ -297,7 +322,13 @@ func GetSessionByIDHandler(ctx *context.Context) []byte {
 func GetSessionByUIDHandler(ctx *context.Context) []byte {
 	v := ResponseGetSession{
 		utils.ResponseCommon{
-			Version: "V1.0",
+			Version: utils.Version,
+			SeqNum:  1,
+			From:    "",
+			To:      "",
+			Type:    "",
+			Number:  "",
+			Code:    0,
 		},
 		GetSession{},
 	}
@@ -310,20 +341,35 @@ func GetSessionByUIDHandler(ctx *context.Context) []byte {
 
 // Processing get users by session id
 func GetUsersBySessionIDHandler(ctx *context.Context) []byte {
+
+	uid := ctx.Input.Param(":sid")
+
+	s := sdk.NewRCServer()
+	users := s.GetUsersByRoomId(uid)
+
+	var userIds []utils.ID
+	for i, v := range users {
+		userIds[i].Id = v
+	}
 	v := ResponseGetSessionUsers{
 		utils.ResponseCommon{
-			Version: "V1.0",
+			Version: utils.Version,
+			SeqNum:  1,
+			From:    "",
+			To:      "",
+			Type:    "",
+			Number:  "",
+			Code:    0,
 		},
-		GetSessionUsers{},
+		GetSessionUsers{
+			List: userIds,
+			Size: len(users),
+		},
 	}
-
-	uid := ctx.Input.Param(":uid")
-	s := sdk.NewRCServer()
-	s.GetUsersByRoomId(uid)
 
 	out, err := json.Marshal(v)
 	if err != nil {
-
+		log.Println("GetUsersBySessionId Error: ", err.Error())
 	}
 	return out
 }

@@ -1,6 +1,7 @@
 package sdk
 
 import (
+	"errors"
 	"log"
 
 	"github.com/rongcloud/server-sdk-go/RCServerSDK"
@@ -10,6 +11,15 @@ var rongcloud *rcserversdk.RongCloud
 
 var app = "z3v5yqkbz1xg0"
 var sec = "NVx79htIGLm"
+
+///
+/// Room info
+///
+type RoomInfo struct {
+	Id   string
+	Name string
+	Time string
+}
 
 type RCServer struct {
 }
@@ -56,18 +66,32 @@ func (s *RCServer) DeleteChatRoom(ids []string) error {
 	return nil
 }
 
-func (s *RCServer) GetChatRoomById(ids []string) {
-	ret, _ := rongcloud.Chatroom.Query(ids)
-	if ret.Code != 200 {
-
+func (s *RCServer) GetChatRoomById(id string) (RoomInfo, error) {
+	ret, err := rongcloud.Chatroom.Query([]string{id})
+	if err != nil {
+		log.Println("GetChatRoomById Error: ", err.Error())
+		return RoomInfo{}, err
 	}
+	if len(ret.ChatRooms) == 0 {
+		return RoomInfo{}, errors.New("Not found session info")
+	}
+	return RoomInfo{
+		Id:   ret.ChatRooms[0].ChrmId,
+		Name: ret.ChatRooms[0].Name,
+		Time: ret.ChatRooms[0].Time,
+	}, nil
 }
 
-func (s *RCServer) GetUsersByRoomId(id string) {
+func (s *RCServer) GetUsersByRoomId(id string) []string {
 	ret, _ := rongcloud.Chatroom.QueryUser(id, "500", "1")
 	if ret.Code != 200 {
 
 	}
+	var users []string
+	for i, user := range ret.Users {
+		users[i] = user.Id
+	}
+	return users
 }
 
 func (s *RCServer) JoinRoomByUserId(uid, sid string) {

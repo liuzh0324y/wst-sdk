@@ -19,7 +19,7 @@ func (this *Controller) RegisterUsers() {
 ///
 /// Create session
 ///
-func (this *Controller) CreateSession() {
+func (this *Controller) CreateSessionById() {
 	SetOutPutHeader(this.Ctx)
 	this.Ctx.Output.Body(CreateSessionHandler(this.Ctx))
 }
@@ -51,7 +51,7 @@ func (this *Controller) DeleteSessionByUID() {
 ///
 /// Get all session
 ///
-func (this *Controller) GetSession() {
+func (this *Controller) GetAllSession() {
 	SetOutPutHeader(this.Ctx)
 	this.Ctx.Output.Body(GetSessionHandler(this.Ctx))
 }

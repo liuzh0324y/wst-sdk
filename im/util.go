@@ -6,8 +6,6 @@ const (
 	Version = "V1.0"
 )
 
-
-
 ///
 /// Create session
 ///
@@ -62,7 +60,7 @@ type ResponseGetSession struct {
 ///
 type GetSessionUsers struct {
 	List []utils.ID `json:"list"`
-	Size int64      `json:"size"`
+	Size int        `json:"size"`
 }
 
 type ResponseGetSessionUsers struct {
