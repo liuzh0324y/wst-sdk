@@ -99,10 +99,12 @@ func (s *RCServer) GetUsersByRoomId(id string) ([]string, error) {
 	return users, nil
 }
 
+// (deprecated)
 func (s *RCServer) JoinRoomByUserId(uid, sid string) {
 	rongcloud.Chatroom.Join([]string{uid}, sid)
 }
 
+// (deprecated)
 func (s *RCServer) ExitRoomByUserId(uid, sid string) {
 
 }
