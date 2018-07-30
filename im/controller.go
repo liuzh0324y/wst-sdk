@@ -41,7 +41,7 @@ func (this *Controller) DeleteSessionByID() {
 }
 
 ///
-/// Delete session by user id
+/// Delete session by user id (deprecated)
 ///
 func (this *Controller) DeleteSessionByUID() {
 	SetOutPutHeader(this.Ctx)
@@ -49,7 +49,7 @@ func (this *Controller) DeleteSessionByUID() {
 }
 
 ///
-/// Get all session
+/// Get all session (deprecated)
 ///
 func (this *Controller) GetAllSession() {
 	SetOutPutHeader(this.Ctx)
@@ -57,7 +57,7 @@ func (this *Controller) GetAllSession() {
 }
 
 ///
-/// Get session by session id
+/// Get session by session id (deprecated)
 ///
 func (this *Controller) GetSessionByID() {
 	SetOutPutHeader(this.Ctx)
@@ -65,7 +65,7 @@ func (this *Controller) GetSessionByID() {
 }
 
 ///
-/// Get session by user id
+/// Get session by user id (deprecated)
 ///
 func (this *Controller) GetSessionByUID() {
 	SetOutPutHeader(this.Ctx)
@@ -73,7 +73,7 @@ func (this *Controller) GetSessionByUID() {
 }
 
 ///
-/// Get users by session id
+/// Get users by session id (deprecated)
 ///
 func (this *Controller) GetUsersBySessionID() {
 	SetOutPutHeader(this.Ctx)
@@ -81,7 +81,7 @@ func (this *Controller) GetUsersBySessionID() {
 }
 
 ///
-/// Put session by user id
+/// Put session by user id (deprecated)
 ///
 func (this *Controller) PutSessionByUID() {
 	SetOutPutHeader(this.Ctx)
@@ -89,7 +89,7 @@ func (this *Controller) PutSessionByUID() {
 }
 
 ///
-/// Post message to user by session id
+/// Post message to user by session id (deprecated)
 ///
 func (this *Controller) PostMessageToUserByID() {
 	SetOutPutHeader(this.Ctx)
@@ -97,7 +97,7 @@ func (this *Controller) PostMessageToUserByID() {
 }
 
 ///
-/// Post message to session by session id
+/// Post message to session by session id (deprecated)
 ///
 func (this *Controller) PostMessageToSessionByID() {
 	SetOutPutHeader(this.Ctx)

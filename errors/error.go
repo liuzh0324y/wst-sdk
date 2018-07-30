@@ -19,10 +19,24 @@ const (
 	UserTokenErr     = 4008 // failed to get the user token
 	CreateSessionErr = 4009 // failed to create the session by session id
 	DeleteSessionErr = 4010 // failed to delete the session by session id
+	UserInfoErr      = 4011 // unknown user infomation
 )
 
 type CodeResult struct {
 	utils.ResponseCommon
+}
+
+func New(text string) error {
+	return &errorString{text}
+}
+
+// errorString is a trivial implementation of error.
+type errorString struct {
+	s string
+}
+
+func (e *errorString) Error() string {
+	return e.s
 }
 
 // Failed to parse json
@@ -55,6 +69,7 @@ func IsCommonErr(req utils.RequestCommon) *CodeResult {
 				To:      req.To,
 				Type:    req.Type,
 				Number:  req.Number,
+				Uid:     req.Uid,
 			},
 		}
 	}
@@ -70,6 +85,7 @@ func IsCommonErr(req utils.RequestCommon) *CodeResult {
 				To:      req.To,
 				Type:    req.Type,
 				Number:  req.Number,
+				Uid:     req.Uid,
 			},
 		}
 
@@ -86,6 +102,7 @@ func IsCommonErr(req utils.RequestCommon) *CodeResult {
 				To:      req.To,
 				Type:    req.Type,
 				Number:  req.Number,
+				Uid:     req.Uid,
 			},
 		}
 
@@ -101,6 +118,7 @@ func IsCommonErr(req utils.RequestCommon) *CodeResult {
 			To:      req.To,
 			Type:    req.Type,
 			Number:  req.Number,
+			Uid:     req.Uid,
 		},
 	}
 }
@@ -128,6 +146,7 @@ func ImplementErr(code int64, req utils.RequestCommon, msg string) []byte {
 		To:      req.To,
 		Type:    req.Type,
 		Number:  req.Number,
+		Uid:     req.Uid,
 	}
 	ret, _ := json.Marshal(out)
 	return ret

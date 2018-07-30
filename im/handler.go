@@ -14,7 +14,7 @@ import (
 func SetOutPutHeader(ctx *context.Context) {
 	ctx.Output.Header("Connection", "close")
 	ctx.Output.Header("Content-Type", "application/json")
-	ctx.Output.Header("Server", "wst-im:v1.0")
+	ctx.Output.Header("Server", utils.Version)
 }
 
 func ParseInputHander(ctx *context.Context) error {
@@ -24,6 +24,21 @@ func ParseInputHander(ctx *context.Context) error {
 		// return errors.New("Content-Type is application/json")
 	}
 	return nil
+}
+
+func checkRegisterCommon(info RegisteredUsers) (bool, error) {
+	if len(info.Id) > 32 || len(info.Id) <= 0 {
+		return false, errors.New("user id too long or short")
+	}
+
+	if len(info.Name) > 32 || len(info.Name) <= 0 {
+		return false, errors.New("user name too long or short")
+	}
+
+	if len(info.Portrait) > 32 || len(info.Portrait) <= 0 {
+		return false, errors.New("user portrait too long or short")
+	}
+	return true, nil
 }
 
 // Processing user registration
@@ -44,25 +59,29 @@ func RegisterUsersHandler(ctx *context.Context) []byte {
 	}
 
 	// Parse request uid
-	uid := ctx.Input.Param(":uid")
-	err = errors.VerifyUid(uid)
+	// uid := ctx.Input.Param(":uid")
+	// err = errors.VerifyUid(uid)
+	// if err != nil {
+	// 	ret := utils.ResponseCommon{
+	// 		Code:    errors.UidErr,
+	// 		Message: err.Error(),
+	// 		Version: request.RequestCommon.Version,
+	// 		SeqNum:  request.RequestCommon.SeqNum,
+	// 		From:    request.RequestCommon.From,
+	// 		To:      request.RequestCommon.To,
+	// 		Type:    request.RequestCommon.Type,
+	// 		Number:  request.RequestCommon.Number,
+	// 	}
+	// 	out, _ := json.Marshal(ret)
+	// 	return out
+	// }
+	_, err = checkRegisterCommon(request.RegisteredUsers)
 	if err != nil {
-		ret := utils.ResponseCommon{
-			Code:    errors.UidErr,
-			Message: err.Error(),
-			Version: request.RequestCommon.Version,
-			SeqNum:  request.RequestCommon.SeqNum,
-			From:    request.RequestCommon.From,
-			To:      request.RequestCommon.To,
-			Type:    request.RequestCommon.Type,
-			Number:  request.RequestCommon.Number,
-		}
-		out, _ := json.Marshal(ret)
-		return out
+		return errors.ImplementErr(errors.UserInfoErr, request.RequestCommon, err.Error())
 	}
 
 	s := sdk.NewRCServer()
-	token, err := s.GetTokenFromUser(uid, request.RegisteredUsers.Name, request.RegisteredUsers.Portrait)
+	token, err := s.GetTokenFromUser(request.RegisteredUsers.Id, request.RegisteredUsers.Name, request.RegisteredUsers.Portrait)
 	if err != nil {
 		return errors.ImplementErr(errors.UserTokenErr, request.RequestCommon, err.Error())
 	}
@@ -75,7 +94,9 @@ func RegisterUsersHandler(ctx *context.Context) []byte {
 			To:      request.RequestCommon.To,
 			Type:    request.RequestCommon.Type,
 			Number:  request.RequestCommon.Number,
+			Uid:     request.RequestCommon.Uid,
 			Code:    0,
+			Message: "success",
 		},
 		utils.TOKEN{
 			Token: token,
@@ -118,6 +139,7 @@ func CreateSessionHandler(ctx *context.Context) []byte {
 			To:      request.RequestCommon.To,
 			Type:    request.RequestCommon.Type,
 			Number:  request.RequestCommon.Number,
+			Uid:     request.RequestCommon.Uid,
 		}
 		out, _ := json.Marshal(ret)
 		return out
@@ -137,6 +159,8 @@ func CreateSessionHandler(ctx *context.Context) []byte {
 			To:      request.RequestCommon.To,
 			Type:    request.RequestCommon.Type,
 			Number:  request.RequestCommon.Number,
+			Uid:     request.RequestCommon.Uid,
+			Message: "success",
 			Code:    0,
 		},
 		utils.ID{
@@ -183,6 +207,8 @@ func DeleteSessionHandler(ctx *context.Context) []byte {
 			To:      request.RequestCommon.To,
 			Type:    request.RequestCommon.Type,
 			Number:  request.RequestCommon.Number,
+			Uid:     request.RequestCommon.Uid,
+			Message: "success",
 			Code:    0,
 		},
 	}
@@ -224,6 +250,8 @@ func DeleteSessionByIDHandler(ctx *context.Context) []byte {
 		To:      request.RequestCommon.To,
 		Type:    request.RequestCommon.Type,
 		Number:  request.RequestCommon.Number,
+		Uid:     request.RequestCommon.Uid,
+		Message: "success",
 		Code:    0,
 	}
 	out, err := json.Marshal(v)

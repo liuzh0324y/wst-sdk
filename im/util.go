@@ -97,6 +97,7 @@ type ResponseQuitSession struct {
 /// Registered users
 ///
 type RegisteredUsers struct {
+	Id       string `json:"id"`
 	Name     string `json:"name"`
 	Portrait string `json:"portrait"`
 	Type     string `json:"type"`
