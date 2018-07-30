@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"github.com/astaxie/beego/context"
-	"github.com/wst-libs/wstsdk/errors"
-	"github.com/wst-libs/wstsdk/im/sdk"
-	"github.com/wst-libs/wstsdk/utils"
+	"github.com/wst-libs/wst-sdk/errors"
+	"github.com/wst-libs/wst-sdk/im/sdk"
+	"github.com/wst-libs/wst-sdk/utils"
 )
 
 func SetOutPutHeader(ctx *context.Context) {

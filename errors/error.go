@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/wst-libs/wstsdk/utils"
+	"github.com/wst-libs/wst-sdk/utils"
 )
 
 const (

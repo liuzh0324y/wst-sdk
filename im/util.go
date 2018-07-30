@@ -1,6 +1,6 @@
 package im
 
-import "github.com/wst-libs/wstsdk/utils"
+import "github.com/wst-libs/wst-sdk/utils"
 
 const (
 	Version = "V1.0"
