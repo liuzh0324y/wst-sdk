@@ -9,4 +9,11 @@
 - [x] 注册用户
 - [x] 发送信息
 
-> git commit -m "Added error handing for query sessions, users, register and send etc; "
+## Public cloud storage 
+
+- [ ] 上传文件
+- [ ] 查询文件信息
+- [ ] 查询所有文件信息
+- [ ] 更新文件信息
+- [ ] 删除文件
+- [ ] 批量删除文件 
