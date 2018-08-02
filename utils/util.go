@@ -28,7 +28,6 @@ type ResponseCommon struct {
 	Type    string `json:"type"`
 	Number  string `json:"number"`
 	Message string `json:"message"`
-	Uid     string `json:"uid"`
 	Code    int64  `json:"code"`
 }
 
