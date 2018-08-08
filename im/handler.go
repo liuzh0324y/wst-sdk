@@ -94,7 +94,7 @@ func RegisterUsersHandler(ctx *context.Context) []byte {
 			To:      request.RequestCommon.To,
 			Type:    request.RequestCommon.Type,
 			Number:  request.RequestCommon.Number,
-			Uid:     request.RequestCommon.Uid,
+
 			Code:    0,
 			Message: "success",
 		},
@@ -139,7 +139,6 @@ func CreateSessionHandler(ctx *context.Context) []byte {
 			To:      request.RequestCommon.To,
 			Type:    request.RequestCommon.Type,
 			Number:  request.RequestCommon.Number,
-			Uid:     request.RequestCommon.Uid,
 		}
 		out, _ := json.Marshal(ret)
 		return out
@@ -159,7 +158,7 @@ func CreateSessionHandler(ctx *context.Context) []byte {
 			To:      request.RequestCommon.To,
 			Type:    request.RequestCommon.Type,
 			Number:  request.RequestCommon.Number,
-			Uid:     request.RequestCommon.Uid,
+
 			Message: "success",
 			Code:    0,
 		},
@@ -207,7 +206,7 @@ func DeleteSessionHandler(ctx *context.Context) []byte {
 			To:      request.RequestCommon.To,
 			Type:    request.RequestCommon.Type,
 			Number:  request.RequestCommon.Number,
-			Uid:     request.RequestCommon.Uid,
+
 			Message: "success",
 			Code:    0,
 		},
@@ -250,7 +249,7 @@ func DeleteSessionByIDHandler(ctx *context.Context) []byte {
 		To:      request.RequestCommon.To,
 		Type:    request.RequestCommon.Type,
 		Number:  request.RequestCommon.Number,
-		Uid:     request.RequestCommon.Uid,
+
 		Message: "success",
 		Code:    0,
 	}

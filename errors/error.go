@@ -69,7 +69,6 @@ func IsCommonErr(req utils.RequestCommon) *CodeResult {
 				To:      req.To,
 				Type:    req.Type,
 				Number:  req.Number,
-				Uid:     req.Uid,
 			},
 		}
 	}
@@ -85,7 +84,6 @@ func IsCommonErr(req utils.RequestCommon) *CodeResult {
 				To:      req.To,
 				Type:    req.Type,
 				Number:  req.Number,
-				Uid:     req.Uid,
 			},
 		}
 
@@ -102,7 +100,6 @@ func IsCommonErr(req utils.RequestCommon) *CodeResult {
 				To:      req.To,
 				Type:    req.Type,
 				Number:  req.Number,
-				Uid:     req.Uid,
 			},
 		}
 
@@ -118,7 +115,6 @@ func IsCommonErr(req utils.RequestCommon) *CodeResult {
 			To:      req.To,
 			Type:    req.Type,
 			Number:  req.Number,
-			Uid:     req.Uid,
 		},
 	}
 }
@@ -146,7 +142,6 @@ func ImplementErr(code int64, req utils.RequestCommon, msg string) []byte {
 		To:      req.To,
 		Type:    req.Type,
 		Number:  req.Number,
-		Uid:     req.Uid,
 	}
 	ret, _ := json.Marshal(out)
 	return ret
