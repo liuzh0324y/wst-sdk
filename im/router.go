@@ -9,12 +9,15 @@ func init() {
 	// deprecated
 	// beego.Router("/api/v1/im/user/:uid/register", &Controller{}, "post:RegisterUsers")
 	// beego.Router("/api/v1/im/user/:uid", &Controller{}, "get:GetSessionByUID")
-	// beego.Router("/api/v1/im/user/:uid/sendmessage", &Controller{}, "post:PostMessageToUserByID")
+	beego.Router("/api/v1/im/user/:uid/sendmessage", &Controller{}, "post:PostMessageToUserByID")
 	beego.Router("/api/v1/im/register", &Controller{}, "post:RegisterUsers")
 
 	// Mapping session routing
 	beego.Router("/api/v1/im/session", &Controller{}, "delete:DeleteSession")
 	beego.Router("/api/v1/im/session/:sid", &Controller{}, "put:CreateSessionById;delete:DeleteSessionByID")
+
+	// Mapping message routing
+	beego.Router("/api/v1/im/message", &Controller{}, "put:ReqMsgCtl")
 
 	// query
 	// deprecated

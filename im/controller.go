@@ -103,3 +103,9 @@ func (this *Controller) PostMessageToSessionByID() {
 	SetOutPutHeader(this.Ctx)
 	this.Ctx.Output.Body(PostMessageToSessionByIDHandler(this.Ctx))
 }
+
+// Send message to target user or group
+func (this *Controller) ReqMsgCtl() {
+	SetOutPutHeader(this.Ctx)
+	this.Ctx.Output.Body(ReqMsgHandler(this.Ctx))
+}

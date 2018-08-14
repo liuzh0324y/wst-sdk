@@ -109,6 +109,43 @@ func (s *RCServer) ExitRoomByUserId(uid, sid string) {
 
 }
 
+func (s *RCServer) SendMsgPrivate(formId, targetId, content string) {
+	var vmsg rcserversdk.VoiceMessage
+	vmsg.Content = content
+
+	ret, err := rongcloud.Message.PublishPrivate(formId, []string{targetId}, vmsg, content, "", "", 0, 1, 1, 1)
+	if err != nil {
+		log.Println("Error: ", err.Error())
+	}
+	if ret.Code != 200 {
+
+	}
+}
+
+func (s *RCServer) SendMsgGroup(sourceId, targetId, content string) {
+	var msg rcserversdk.TxtMessage
+	msg.Content = content
+	ret, err := rongcloud.Message.PublishGroup(sourceId, []string{targetId}, msg, "", "", 1, 0, 0)
+	if err != nil {
+		log.Println("Error: ", err.Error())
+	}
+	if ret.Code != 200 {
+
+	}
+}
+
+func (s *RCServer) SendMsgRoom(sourceId, targetId, content string) {
+	var msg rcserversdk.TxtMessage
+	msg.Content = content
+	ret, err := rongcloud.Message.PublishChatroom(sourceId, []string{targetId}, msg)
+	if err != nil {
+		log.Println("Error: ", err.Error())
+	}
+	if ret.Code != 200 {
+
+	}
+}
+
 func (s *RCServer) SendMsgUserToUsers(formId, toId, content string) {
 	var vmsg rcserversdk.VoiceMessage
 	vmsg.Content = content

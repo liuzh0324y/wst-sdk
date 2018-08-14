@@ -462,7 +462,7 @@ func PostMessageToUserByIDHandler(ctx *context.Context) []byte {
 
 	v := ResponseSendMessage{
 		utils.ResponseCommon{
-			Version: "V1.0",
+			Version: utils.Version,
 		},
 	}
 	out, err := json.Marshal(v)
@@ -495,12 +495,52 @@ func PostMessageToSessionByIDHandler(ctx *context.Context) []byte {
 
 	v := ResponseSendMessage{
 		utils.ResponseCommon{
-			Version: "V1.0",
+			Version: utils.Version,
 		},
 	}
 	out, err := json.Marshal(v)
 	if err != nil {
 
 	}
+	return out
+}
+
+func ReqMsgHandler(ctx *context.Context) []byte {
+	var req ReqMsg
+	err := json.Unmarshal(ctx.Input.RequestBody, &req)
+	if err != nil {
+		log.Println("Error: ", err.Error())
+		return errors.ParseJsonFailed()
+	}
+
+	com := errors.IsCommonErr(req.RequestCommon)
+	if com.Code != 0 {
+		outerr, _ := json.Marshal(com)
+		return outerr
+	}
+
+	s := sdk.NewRCServer()
+	switch req.Data.Type {
+	case "private":
+		s.SendMsgPrivate(req.Data.SourceId, req.Data.TargetId, req.Data.Content)
+	case "group":
+		s.SendMsgGroup(req.Data.SourceId, req.Data.TargetId, req.Data.Content)
+	case "chatroom":
+		s.SendMsgRoom(req.Data.SourceId, req.Data.TargetId, req.Data.Content)
+	default:
+		return errors.ReqTypeErr(req.RequestCommon)
+	}
+
+	v := utils.ResponseCommon{
+		Version: utils.Version,
+		SeqNum:  req.SeqNum,
+		From:    req.To,
+		To:      req.From,
+		Type:    req.Type,
+		Number:  req.Number,
+		Message: "success",
+		Code:    0,
+	}
+	out, _ := json.Marshal(v)
 	return out
 }

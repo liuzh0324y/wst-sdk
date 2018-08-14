@@ -129,3 +129,17 @@ type RequestSendMessage struct {
 type ResponseSendMessage struct {
 	utils.ResponseCommon
 }
+
+type ReqMsg struct {
+	utils.RequestCommon
+	Data struct {
+		SourceId string `json:"senderId"`
+		TargetId string `json:"targetId"`
+		Type     string `json:"type"`
+		Content  string `json:"content"`
+	} `json:"data"`
+}
+
+type ResMsg struct {
+	utils.ResponseCommon
+}

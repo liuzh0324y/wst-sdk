@@ -20,6 +20,7 @@ const (
 	CreateSessionErr = 4009 // failed to create the session by session id
 	DeleteSessionErr = 4010 // failed to delete the session by session id
 	UserInfoErr      = 4011 // unknown user infomation
+	MsgTypeErr       = 4012 // unknown message type
 )
 
 type CodeResult struct {
@@ -154,5 +155,22 @@ func RequestParamFiled() []byte {
 		SeqNum:  1,
 	}
 	out, _ := json.Marshal(comm)
+	return out
+}
+
+// send msg type unknown
+func ReqTypeErr(req utils.RequestCommon) []byte {
+	com := utils.ResponseCommon{
+		Code:    MsgTypeErr,
+		Message: "unknown the type of information sent",
+		Version: req.Version,
+		SeqNum:  req.SeqNum,
+		From:    req.From,
+		To:      req.To,
+		Type:    req.Type,
+		Number:  req.Number,
+	}
+
+	out, _ := json.Marshal(com)
 	return out
 }
