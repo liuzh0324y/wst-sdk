@@ -35,6 +35,10 @@ type ID struct {
 	Id string `json:"id"`
 }
 
+type Url struct {
+	Url string `json:"url"`
+}
+
 type TOKEN struct {
 	Token string `json:"token"`
 }
