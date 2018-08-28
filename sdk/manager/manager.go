@@ -3,77 +3,81 @@
 //
 package manager
 
-import (
-	"encoding/json"
-	"io/ioutil"
-	"log"
-	"net/http"
-	"strings"
-)
+import "github.com/wst-libs/wst-sdk/utils"
 
-type Manager struct {
-}
-
-func NewManager() *Manager {
-	return &Manager{}
-}
-
-// Add file record
-func (t *Manager) Add(url string, body *ReqPutFile) ResCode {
-	if len(url) == 0 {
-		return ResCode{
-			Code: 404,
-		}
+func Add(url string) ResCode {
+	c := &Client{}
+	req := &ReqPutFile{
+		utils.RequestCommon{
+			Version: utils.Version,
+			SeqNum:  1,
+			From:    "omigad",
+			To:      "client",
+			Type:    "omigad",
+			Number:  "XXXX-XXXX-XXXX-XXXX",
+			Uid:     "unknown",
+		},
+		PutFile{
+			Name:     "",
+			Type:     "",
+			Url:      "",
+			Key:      "",
+			Secret:   "",
+			Bucket:   "",
+			Object:   "",
+			Region:   "",
+			Endpoint: "",
+			Desc:     "",
+			Version:  "",
+			Mode:     "",
+			Content:  "",
+			Size:     1,
+			Level:    1,
+		},
 	}
-	reqStr := &ReqPutFile{}
-	reqBody, err := json.Marshal(reqStr)
-	client := &http.Client{}
-	req, err := http.NewRequest("PUT", url, strings.NewReader(string(reqBody)))
-	if err != nil {
-		log.Println("failed to new request object")
-		return ResCode{
-			Code: 404,
-		}
-	}
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Connection", "close")
-
-	res, err := client.Do(req)
-
-	defer func() {
-		res.Body.Close()
-	}()
-
-	// stdout := os.Stdout
-	// _, err = io.Copy(stdout, res.Body)
-
-	status := res.StatusCode
-	var resStr ResPutFile
-	resBody, err := ioutil.ReadAll(res.Body)
-	err = json.Unmarshal(resBody, &resStr)
-	if err != nil {
-		log.Println("error: ", err.Error())
-	}
-	log.Println(status)
-	return ResCode{
-		Code: 0,
-		Msg:  "success",
-		Id:   resStr.Id,
-	}
+	return c.Add(url, req)
 }
 
-// Delete file record
-func (t *Manager) Del() {
-
+func Del(url string) {
+	c := &Client{}
+	c.Del()
 }
 
-// Update file record
-func (t *Manager) Update(url string) {
-	// http.Post(url)
+func Update(url string, status int) {
+	c := &Client{}
+	req := &ReqPutFile{
+		utils.RequestCommon{
+			Version: utils.Version,
+			SeqNum:  1,
+			From:    "omigad",
+			To:      "client",
+			Type:    "omigad",
+			Number:  "XXXX-XXXX-XXXX-XXXX",
+			Uid:     "unknown",
+		},
+		PutFile{
+			Name:     "",
+			Type:     "",
+			Url:      "",
+			Key:      "",
+			Secret:   "",
+			Bucket:   "",
+			Object:   "",
+			Region:   "",
+			Endpoint: "",
+			Desc:     "",
+			Version:  "",
+			Mode:     "",
+			Content:  "",
+			Size:     1,
+			Level:    1,
+			Status:   status,
+		},
+	}
+	c.Update(url, req)
 }
 
-// Get file record
-func (t *Manager) Get() {
-
+func Get(url string) {
+	c := &Client{}
+	c.Get()
 }

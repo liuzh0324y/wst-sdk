@@ -51,3 +51,7 @@ type RoomInfo struct {
 	CreateTime  string `json:"createtime"`
 	UpdateTime  string `json:"updatetime"`
 }
+
+func GetSeqNum() int64 {
+	return 0
+}

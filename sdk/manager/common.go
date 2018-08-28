@@ -2,12 +2,14 @@ package manager
 
 import "github.com/wst-libs/wst-sdk/utils"
 
+// Reture result
 type ResCode struct {
 	Code int64  `json:"code"`
 	Msg  string `json:"message"`
 	Id   string `json:"id"`
 }
 
+// create and upload record information
 type PutFile struct {
 	Name     string `json:"name"`
 	Type     string `json:"type"`
@@ -24,13 +26,16 @@ type PutFile struct {
 	Content  string `json:"Content"`
 	Size     int64  `json:"size"`
 	Level    int    `json:"level"`
+	Status   int    `json:"status"`
 }
 
+// request information for create or upload record
 type ReqPutFile struct {
 	utils.RequestCommon
 	PutFile `json:"data"`
 }
 
+// response information for create or upload record
 type ResPutFile struct {
 	utils.ResponseCommon
 	utils.ID `json:"data"`
