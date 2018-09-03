@@ -21,6 +21,7 @@ const (
 	DeleteSessionErr = 4010 // failed to delete the session by session id
 	UserInfoErr      = 4011 // unknown user infomation
 	MsgTypeErr       = 4012 // unknown message type
+	NotSupport       = 4013 // not support method
 )
 
 type CodeResult struct {
@@ -172,5 +173,16 @@ func ReqTypeErr(req utils.RequestCommon) []byte {
 	}
 
 	out, _ := json.Marshal(com)
+	return out
+}
+
+// NotSupportMethod is a not support method
+func NotSupportMethod() []byte {
+	com := utils.ResponseCommon{
+		Code:    NotSupport,
+		Message: "Not support method",
+	}
+	out, _ := json.Marshal(com)
+
 	return out
 }

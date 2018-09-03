@@ -146,6 +146,10 @@ func (s *RCServer) SendMsgRoom(sourceId, targetId, content string) {
 	}
 }
 
+func (s *RCServer) SendMsgSystem(sourceId, targetId, content string) {
+
+}
+
 func (s *RCServer) SendMsgUserToUsers(formId, toId, content string) {
 	var vmsg rcserversdk.VoiceMessage
 	vmsg.Content = content

@@ -30,9 +30,11 @@ const (
 
 var config = IMConf{}
 
-func getconf() {
-	err := conf.GetConf(url, config)
+func getconf() error {
+	err := conf.GetConf(url, &config)
 	if err != nil {
 		log.Println(err.Error())
+		return err
 	}
+	return nil
 }
