@@ -12,6 +12,8 @@ import (
 	"github.com/astaxie/beego/logs"
 	"github.com/gorilla/mux"
 	"github.com/wst-libs/wst-sdk/conf"
+	"github.com/wst-libs/wst-sdk/errors"
+	"github.com/wst-libs/wst-sdk/sdk/manager"
 	"github.com/wst-libs/wst-sdk/utils"
 )
 
@@ -52,7 +54,7 @@ func getconfig() error {
 func file(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	setheader(w.Header())
+	setHeader(w.Header())
 	var outbody []byte
 
 	body, err := ioutil.ReadAll(r.Body)
@@ -60,13 +62,24 @@ func file(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if r.Method == http.MethodGet {
-		outbody = getfileHandler(body)
+		vars := mux.Vars(r)
+		bucket := vars["bucket"]
+		object := vars["object"]
+		outbody = getfileHandler(bucket, object, body)
 	} else if r.Method == http.MethodPost {
-		outbody = postfileHandler(body)
+		vars := mux.Vars(r)
+		bucket := vars["bucket"]
+		object := vars["object"]
+		outbody = postfileHandler(bucket, object, body)
 	} else if r.Method == http.MethodPut {
 		outbody = createHandler(body)
 	} else if r.Method == http.MethodDelete {
-		outbody = delfileHandler(body)
+		vars := mux.Vars(r)
+		bucket := vars["bucket"]
+		object := vars["object"]
+		outbody = delfileHandler(bucket, object, body)
+	} else {
+		outbody = errors.NotSupportMethod()
 	}
 
 	w.Write(outbody)
@@ -76,9 +89,14 @@ func file(w http.ResponseWriter, r *http.Request) {
 func callback(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	setheader(w.Header())
+	setHeader(w.Header())
 	var outbody []byte
 
+	if r.Method == "POST" {
+
+	} else {
+
+	}
 	w.Write(outbody)
 
 }
@@ -86,16 +104,30 @@ func callback(w http.ResponseWriter, r *http.Request) {
 func uploadinfo(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	setheader(w.Header())
+	setHeader(w.Header())
 	var outbody []byte
 
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return
+	}
+	var req ReqBody
+	if json.Unmarshal(body, req) != nil {
+		log.Println("Failed to json unmarshal.")
+		// return ResponseFailed()
+	}
+
+	manager.Update(beego.AppConfig.String("managerurl")+"/"+req.Id, 3)
+
+	// return ResponseSuccess()
 	w.Write(outbody)
 }
 
-func setheader(h http.Header) {
+func setHeader(h http.Header) {
 	h.Add("Content-Type", "application/json")
 	h.Add("Connection", "close")
 }
+
 func uploadChan() {
 	for {
 		f := <-filechan

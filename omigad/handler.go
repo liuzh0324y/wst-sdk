@@ -192,17 +192,95 @@ func GetUrlForFileHandler(ctx *context.Context) []byte {
 }
 
 func createHandler(body []byte) []byte {
-	return nil
+	s, err := PutFileRequest(body)
+	if err != nil {
+		return JsonFormatErr()
+	}
+	info := FileInfo{
+		Id:       s.Data.Id,
+		FilePath: s.Data.Path,
+		FileName: s.Data.Name,
+		FileType: s.Data.Type,
+		Bucket:   s.Data.Bucket,
+		Object:   s.Data.Object,
+	}
+	filechan <- info
+
+	return PutFileResponse()
 }
 
-func getfileHandler(body []byte) []byte {
-	return nil
+func getfileHandler(bucket, object string, body []byte) []byte {
+
+	obj, err := NewAliyunObject(beego.AppConfig.String("endpoint"), beego.AppConfig.String("accesskey"), beego.AppConfig.String("secretkey"), bucket)
+	if err != nil {
+		log.Println("GetFileHandler error: ", err.Error())
+		return BucketNotFound()
+	}
+
+	isExist, err := obj.IsFileExist(object)
+	if err != nil {
+		log.Println("GetFileHandler Error: ", err.Error())
+		return InternalError()
+	}
+	if isExist != true {
+		log.Println("file not exist.")
+		return FileNotFound()
+	}
+	returl, err := obj.GetFileWithURL(object, 3600)
+	if err != nil {
+		log.Println("GetFileHandler error: ", err.Error())
+		return InternalError()
+	}
+	log.Println("url: ", returl)
+	return GetFileResponse(returl)
 }
 
-func postfileHandler(body []byte) []byte {
-	return nil
+func postfileHandler(bucket, object string, body []byte) []byte {
+
+	s, err := UpdateFileRequest(body)
+	if err != nil {
+		return JsonFormatErr()
+	}
+
+	obj, err := NewAliyunObject(beego.AppConfig.String("endpoint"), beego.AppConfig.String("accesskey"), beego.AppConfig.String("secretkey"), bucket)
+	if err != nil {
+		log.Println("UpdateFileHandler error: ", err.Error())
+		return BucketNotFound()
+	}
+
+	isExist, err := obj.IsFileExist(object)
+	if err != nil {
+		log.Println("UpdateFileHandler error: ", err.Error())
+		return InternalError()
+	}
+	if isExist != true {
+		log.Println("file not exist.")
+		return FileNotFound()
+	}
+
+	obj.UpdateFile(object, "description", s.Data.Desc)
+
+	return UpdateFileResponse()
 }
 
-func delfileHandler(body []byte) []byte {
-	return nil
+func delfileHandler(bucket, object string, body []byte) []byte {
+	obj, err := NewAliyunObject(beego.AppConfig.String("endpoint"), beego.AppConfig.String("accesskey"), beego.AppConfig.String("secretkey"), bucket)
+	if err != nil {
+		log.Println("UpdateFileHandler error: ", err.Error())
+		return BucketNotFound()
+	}
+
+	isExist, err := obj.IsFileExist(object)
+	if err != nil {
+		log.Println("UpdateFileHandler error: ", err.Error())
+		return InternalError()
+	}
+	if isExist != true {
+		log.Println("file not exist.")
+		return FileNotFound()
+	}
+
+	obj.DeleteFile(object)
+
+	return DeleteFileResponse()
 }
