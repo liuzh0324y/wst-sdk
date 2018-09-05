@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 
@@ -21,7 +22,7 @@ var filechan chan FileInfo = make(chan FileInfo, 1024)
 var config OMGConfig
 
 const (
-	configurl = "http://39.105.53.16:48888/im-dev.yml"
+	configurl = "http://39.105.53.16:48888/omigad-dev.yml"
 )
 
 // Run is start function
@@ -30,14 +31,14 @@ func Run() {
 	var addr string
 	err := getconfig()
 	if err != nil {
-		addr = ":18010"
+		addr = ":18012"
 	} else {
 		addr = ":" + config.Server.Httpport
 	}
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/api/v1/cloudstorage/file", file)
 	router.HandleFunc("/api/v1/cloudstorage/callback", callback)
-	router.HandleFunc("/api/v1/cloudstorage/uploadinfo", uploadinfo)
+	router.HandleFunc("/api/v1/cloudstorage/uploadinfo", uploadinfo).Methods(http.MethodGet)
 
 	log.Fatal(http.ListenAndServe(addr, router))
 }
@@ -65,6 +66,8 @@ func file(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		bucket := vars["bucket"]
 		object := vars["object"]
+		log.Println("bucket: ", bucket)
+		log.Println("object: ", object)
 		outbody = getfileHandler(bucket, object, body)
 	} else if r.Method == http.MethodPost {
 		vars := mux.Vars(r)
@@ -101,26 +104,57 @@ func callback(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// uploadinfo get a upload url of oss and create the record to manager.
 func uploadinfo(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
+	// Parse url
 
-	setHeader(w.Header())
-	var outbody []byte
-
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
+	m, _ := url.ParseQuery(r.URL.RawQuery)
+	log.Println(m)
+	bucket := m.Get("bucket")
+	object := m.Get("object")
+	if len(bucket) == 0 {
+		bucket = beego.AppConfig.String("bucket")
+	}
+	if len(object) == 0 {
+		w.Write(InvalidParams())
 		return
 	}
-	var req ReqBody
-	if json.Unmarshal(body, req) != nil {
-		log.Println("Failed to json unmarshal.")
-		// return ResponseFailed()
+	// New object for oss
+	obj, err := NewAliyunObject(beego.AppConfig.String("endpoint"), beego.AppConfig.String("accesskey"), beego.AppConfig.String("secretkey"), bucket)
+	if err != nil {
+		log.Println("GetUrlFromFileHandler")
+		w.Write(BucketNotFound())
+		return
 	}
 
-	manager.Update(beego.AppConfig.String("managerurl")+"/"+req.Id, 3)
+	// check is file exist
+	isExist, err := obj.IsFileExist(object)
+	if err != nil {
+		log.Println("GetUrlForFileHandler error: ", err.Error())
+		w.Write(InternalError())
+		return
+	}
+	if isExist != false {
+		log.Println("file not exist")
+		w.Write(FileAlreadyExist())
+		return
+	}
 
-	// return ResponseSuccess()
-	w.Write(outbody)
+	// get id for manager
+	res := manager.Add(beego.AppConfig.String("managerurl"))
+	if res.Code != 0 {
+		w.Write(CreateRecordFailed())
+		return
+	}
+	url, err := obj.PutFileWithURL(object)
+	if err != nil {
+		log.Println("GetUrlForFileHandler error: ", err.Error())
+		w.Write(InternalError())
+		return
+	}
+
+	w.Write(GetUrlForFileResponse(res.Id, url))
 }
 
 func setHeader(h http.Header) {
