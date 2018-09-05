@@ -1,14 +1,19 @@
 package omigad
 
 import (
-	"log"
+	"net/http"
 
-	"github.com/astaxie/beego"
+	"github.com/gorilla/mux"
 )
 
-func init() {
-	beego.Router("/api/v1/cloudstorage/file", &Controller{}, "put:PutFile;get:GetFile;post:UpdateFile;delete:DeleteFile")
-	beego.Router("/api/v1/cloudstorage/callback", &Controller{}, "post:CallBack")
-	beego.Router("/api/v1/cloudstorage/uploadinfo", &Controller{}, "get:GetUrlForFile")
-	log.Println("Initialize Router.")
+func router() *mux.Router {
+	router := mux.NewRouter().StrictSlash(true)
+	router.HandleFunc("/api/v1/cloudstorage/file", uploadLocalFile).Methods(http.MethodPut)
+	router.HandleFunc("/api/v1/cloudstorage/file", getFileInfo).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/cloudstorage/file", updataFileInfo).Methods(http.MethodPost)
+	router.HandleFunc("/api/v1/cloudstorage/file", deleteFile).Methods(http.MethodDelete)
+	router.HandleFunc("/api/v1/cloudstorage/uploadinfo", getURL).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/cloudstorage/callback", callback).Methods(http.MethodPost)
+
+	return router
 }

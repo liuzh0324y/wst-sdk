@@ -89,21 +89,6 @@ func file(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func callback(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	setHeader(w.Header())
-	var outbody []byte
-
-	if r.Method == "POST" {
-
-	} else {
-
-	}
-	w.Write(outbody)
-
-}
-
 // uploadinfo get a upload url of oss and create the record to manager.
 func uploadinfo(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
