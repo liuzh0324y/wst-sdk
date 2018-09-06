@@ -2,7 +2,6 @@ package omigad
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -11,15 +10,13 @@ import (
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"github.com/gorilla/mux"
 	"github.com/wst-libs/wst-sdk/conf"
-	"github.com/wst-libs/wst-sdk/errors"
 	"github.com/wst-libs/wst-sdk/sdk/manager"
 	"github.com/wst-libs/wst-sdk/utils"
 )
 
 var filechan chan FileInfo = make(chan FileInfo, 1024)
-var config OMGConfig
+var config httpconfig
 
 const (
 	configurl = "http://39.105.53.16:48888/omigad-dev.yml"
@@ -27,7 +24,7 @@ const (
 
 // Run is start function
 func Run() {
-	go uploadChan()
+	// go uploadChan()
 	var addr string
 	err := getconfig()
 	if err != nil {
@@ -35,12 +32,8 @@ func Run() {
 	} else {
 		addr = ":" + config.Server.Httpport
 	}
-	router := mux.NewRouter().StrictSlash(true)
-	router.HandleFunc("/api/v1/cloudstorage/file", file)
-	router.HandleFunc("/api/v1/cloudstorage/callback", callback)
-	router.HandleFunc("/api/v1/cloudstorage/uploadinfo", uploadinfo).Methods(http.MethodGet)
 
-	log.Fatal(http.ListenAndServe(addr, router))
+	log.Fatal(http.ListenAndServe(addr, router()))
 }
 
 func getconfig() error {
@@ -49,44 +42,8 @@ func getconfig() error {
 		log.Println(err.Error())
 		return err
 	}
+	log.Printf("%v\n", config)
 	return nil
-}
-
-func file(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	setHeader(w.Header())
-	var outbody []byte
-
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return
-	}
-	if r.Method == http.MethodGet {
-		vars := mux.Vars(r)
-		bucket := vars["bucket"]
-		object := vars["object"]
-		log.Println("bucket: ", bucket)
-		log.Println("object: ", object)
-		outbody = getfileHandler(bucket, object, body)
-	} else if r.Method == http.MethodPost {
-		vars := mux.Vars(r)
-		bucket := vars["bucket"]
-		object := vars["object"]
-		outbody = postfileHandler(bucket, object, body)
-	} else if r.Method == http.MethodPut {
-		outbody = createHandler(body)
-	} else if r.Method == http.MethodDelete {
-		vars := mux.Vars(r)
-		bucket := vars["bucket"]
-		object := vars["object"]
-		outbody = delfileHandler(bucket, object, body)
-	} else {
-		outbody = errors.NotSupportMethod()
-	}
-
-	w.Write(outbody)
-
 }
 
 // uploadinfo get a upload url of oss and create the record to manager.
@@ -99,14 +56,14 @@ func uploadinfo(w http.ResponseWriter, r *http.Request) {
 	bucket := m.Get("bucket")
 	object := m.Get("object")
 	if len(bucket) == 0 {
-		bucket = beego.AppConfig.String("bucket")
+		bucket = defaultBucket
 	}
 	if len(object) == 0 {
 		w.Write(InvalidParams())
 		return
 	}
 	// New object for oss
-	obj, err := NewAliyunObject(beego.AppConfig.String("endpoint"), beego.AppConfig.String("accesskey"), beego.AppConfig.String("secretkey"), bucket)
+	obj, err := NewAliyunObject(config.Server.Endpoint, config.Server.AccessKey, config.Server.SecretKey, bucket)
 	if err != nil {
 		log.Println("GetUrlFromFileHandler")
 		w.Write(BucketNotFound())
@@ -127,7 +84,7 @@ func uploadinfo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// get id for manager
-	res := manager.Add(beego.AppConfig.String("managerurl"))
+	res := manager.Add(config.Server.ManagerURL)
 	if res.Code != 0 {
 		w.Write(CreateRecordFailed())
 		return
@@ -164,7 +121,7 @@ func uploadChan() {
 			continue
 		}
 
-		aliyun, err := NewAliyunObject(beego.AppConfig.String("endpoint"), beego.AppConfig.String("accesskey"), beego.AppConfig.String("secretkey"), f.Bucket)
+		aliyun, err := NewAliyunObject(config.Server.Endpoint, config.Server.AccessKey, config.Server.SecretKey, f.Bucket)
 		if err != nil {
 			logs.Error(err.Error())
 			continue
@@ -209,7 +166,7 @@ func uploadChan() {
 			},
 		}
 		out, _ := json.Marshal(res)
-		posturl := "http://" + beego.AppConfig.String("puthost") + ":" + beego.AppConfig.String("putport") + beego.AppConfig.String("putpath") + "/" + f.Id
+		posturl := "http://" + config.Server.ManagerURL + "/" + f.Id
 
 		resp, err := http.Post(posturl, "application/json", strings.NewReader(string(out)))
 		if err != nil {

@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -18,10 +19,17 @@ func (t *Client) Add(url string, body *ReqPutFile) ResCode {
 			Code: 404,
 		}
 	}
-	reqStr := &ReqPutFile{}
-	reqBody, err := json.Marshal(reqStr)
+
+	reqBody, err := json.Marshal(body)
+	if err != nil {
+		log.Println("failed to marshal.")
+		return ResCode{
+			Code: 4005,
+		}
+	}
 	client := &http.Client{}
-	req, err := http.NewRequest("PUT", url, strings.NewReader(string(reqBody)))
+	log.Println("send file manager: ", strings.NewReader(string(reqBody)))
+	req, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(reqBody))
 	if err != nil {
 		log.Println("failed to new request object")
 		return ResCode{
@@ -31,12 +39,14 @@ func (t *Client) Add(url string, body *ReqPutFile) ResCode {
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Connection", "close")
-
+	log.Println("request url: ", req.URL)
 	res, err := client.Do(req)
-
-	defer func() {
-		res.Body.Close()
-	}()
+	if err != nil {
+		log.Println("failed to recv the response. err: ", err.Error())
+		return ResCode{
+			Code: 4006,
+		}
+	}
 
 	// stdout := os.Stdout
 	// _, err = io.Copy(stdout, res.Body)
@@ -44,6 +54,7 @@ func (t *Client) Add(url string, body *ReqPutFile) ResCode {
 	status := res.StatusCode
 	var resStr ResPutFile
 	resBody, err := ioutil.ReadAll(res.Body)
+	log.Println("recv file manager: ", resBody)
 	err = json.Unmarshal(resBody, &resStr)
 	if err != nil {
 		log.Println("error: ", err.Error())

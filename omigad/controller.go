@@ -2,163 +2,118 @@ package omigad
 
 import (
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
-
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/context"
-	"github.com/wst-libs/wst-sdk/sdk/manager"
 )
 
-type Controller struct {
-	beego.Controller
+// setResHeader set response header
+func setResHeader(header http.Header) {
+	header.Add("Content-Type", "application/json")
+	header.Add("Connection", "close")
 }
 
-func SetOutPutHeaders(ctx *context.Context) {
-	ctx.Output.Header("Connection", "close")
-	ctx.Output.Header("Content-Type", "application/json")
-	ctx.Output.Header("Server", "omigad:V1.0")
-}
-func (t *Controller) PutFile() {
-	SetOutPutHeaders(t.Ctx)
-	t.Ctx.Output.Body(PutFileHandler(t.Ctx))
-}
+// uploadLocalFileToCloud upload the local file to cloud
+func uploadLocalFileToCloud(w http.ResponseWriter, r *http.Request) {
+	setResHeader(w.Header())
+	// u, err := url.ParseQuery(r.URL.RawQuery)
+	// if err != nil {
 
-func (t *Controller) GetFile() {
-	SetOutPutHeaders(t.Ctx)
-	t.Ctx.Output.Body(GetFileHandler(t.Ctx))
-}
+	// }
 
-func (t *Controller) UpdateFile() {
-	SetOutPutHeaders(t.Ctx)
-	t.Ctx.Output.Body(UpdateFileHandler(t.Ctx))
-}
-
-func (t *Controller) DeleteFile() {
-	SetOutPutHeaders(t.Ctx)
-	t.Ctx.Output.Body(DeleteFileHandler(t.Ctx))
-}
-
-func (t *Controller) CallBack() {
-	SetOutPutHeaders(t.Ctx)
-	t.Ctx.Output.Body(CallBackHandler(t.Ctx))
-}
-
-func (t *Controller) GetUrlForFile() {
-	SetOutPutHeaders(t.Ctx)
-	t.Ctx.Output.Body(GetUrlForFileHandler(t.Ctx))
-}
-
-func uploadLocalFile(w http.ResponseWriter, r *http.Request) {
-
-	u, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil {
-
-	}
-
-	bucket := u.Get("bucket")
-	object := u.Get("object")
-	log.Println("bucket: ", bucket)
-	log.Println("object: ", object)
+	// bucket := u.Get("bucket")
+	// object := u.Get("object")
+	// log.Println("bucket: ", bucket)
+	// log.Println("object: ", object)
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 
 	}
-	outbody := getfileHandler(bucket, object, body)
 
-	w.Write(outbody)
+	w.Write(uploadLocalFileToCloudHandler(body))
 }
 
-func getFileInfo(w http.ResponseWriter, r *http.Request) {
+// getURLOfFileForCloud get the url of file for cloud
+func getURLOfFileForCloud(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-}
+	setResHeader(w.Header())
 
-func updataFileInfo(w http.ResponseWriter, r *http.Request) {
 	u, err := url.ParseQuery(r.URL.RawQuery)
 	if err != nil {
-
-	}
-
-	bucket := u.Get("bucket")
-	object := u.Get("object")
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-	}
-	outbody := postfileHandler(bucket, object, body)
-	w.Write(outbody)
-}
-
-func deleteFile(w http.ResponseWriter, r *http.Request) {
-	u, err := url.ParseQuery(r.URL.RawQuery)
-	if err != nil {
+		w.Write(InvalidParams())
+		return
 	}
 	bucket := u.Get("bucket")
 	object := u.Get("object")
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
+	if len(bucket) == 0 {
+		bucket = defaultBucket
 	}
-	outbody := delfileHandler(bucket, object, body)
-	w.Write(outbody)
+	if len(object) == 0 {
+
+	}
+	w.Write(getURLOfFileForCloudHandler(bucket, object))
 }
 
-func getURL(w http.ResponseWriter, r *http.Request) {
+// updateFileInfoOfCloud  update the file info of cloud
+func updateFileInfoOfCloud(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
+
+	setResHeader(w.Header())
+	u, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+
+	}
+
+	bucket := u.Get("bucket")
+	object := u.Get("object")
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+	}
+
+	w.Write(updateFileInfoOfCloudHandler(bucket, object, body))
+}
+
+// deleteFileOfCloud delete the file of cloud
+func deleteFileOfCloud(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	setResHeader(w.Header())
+	u, err := url.ParseQuery(r.URL.RawQuery)
+	if err != nil {
+	}
+	bucket := u.Get("bucket")
+	object := u.Get("object")
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+	}
+
+	w.Write(deleteFileOfCloudHandler(bucket, object, body))
+}
+
+// getURLOfUploadFile get the url of the upload file
+func getURLOfUploadFile(w http.ResponseWriter, r *http.Request) {
+	// defer r.Body.Close()
+
+	setResHeader(w.Header())
 	// Parse url
 
 	m, _ := url.ParseQuery(r.URL.RawQuery)
-	log.Println(m)
+
 	bucket := m.Get("bucket")
 	object := m.Get("object")
-	if len(bucket) == 0 {
-		bucket = beego.AppConfig.String("bucket")
-	}
 	if len(object) == 0 {
 		w.Write(InvalidParams())
 		return
 	}
-	// New object for oss
-	obj, err := NewAliyunObject(beego.AppConfig.String("endpoint"), beego.AppConfig.String("accesskey"), beego.AppConfig.String("secretkey"), bucket)
-	if err != nil {
-		log.Println("GetUrlFromFileHandler")
-		w.Write(BucketNotFound())
-		return
-	}
 
-	// check is file exist
-	isExist, err := obj.IsFileExist(object)
-	if err != nil {
-		log.Println("GetUrlForFileHandler error: ", err.Error())
-		w.Write(InternalError())
-		return
-	}
-	if isExist != false {
-		log.Println("file not exist")
-		w.Write(FileAlreadyExist())
-		return
-	}
-
-	// get id for manager
-	res := manager.Add(beego.AppConfig.String("managerurl"))
-	if res.Code != 0 {
-		w.Write(CreateRecordFailed())
-		return
-	}
-	url, err := obj.PutFileWithURL(object)
-	if err != nil {
-		log.Println("GetUrlForFileHandler error: ", err.Error())
-		w.Write(InternalError())
-		return
-	}
-
-	w.Write(GetUrlForFileResponse(res.Id, url))
+	w.Write(getURLOfUploadFileHandler(bucket, object))
 }
 
 func callback(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	setHeader(w.Header())
+	setResHeader(w.Header())
+
 	var outbody []byte
 
 	w.Write(outbody)

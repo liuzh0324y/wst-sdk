@@ -2,6 +2,10 @@ package omigad
 
 import "github.com/wst-libs/wst-sdk/utils"
 
+const (
+	defaultBucket = "llvision"
+)
+
 // PutFile request structure
 type ReqPutFile struct {
 	Data struct {
