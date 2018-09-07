@@ -28,7 +28,7 @@ func (t *Client) Add(url string, body *ReqPutFile) ResCode {
 		}
 	}
 	client := &http.Client{}
-	log.Println("send file manager: ", strings.NewReader(string(reqBody)))
+
 	req, err := http.NewRequest(http.MethodPut, url, bytes.NewReader(reqBody))
 	if err != nil {
 		log.Println("failed to new request object")
@@ -39,7 +39,7 @@ func (t *Client) Add(url string, body *ReqPutFile) ResCode {
 	req.Header.Add("Accept", "application/json")
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Connection", "close")
-	log.Println("request url: ", req.URL)
+
 	res, err := client.Do(req)
 	if err != nil {
 		log.Println("failed to recv the response. err: ", err.Error())
@@ -54,7 +54,7 @@ func (t *Client) Add(url string, body *ReqPutFile) ResCode {
 	status := res.StatusCode
 	var resStr ResPutFile
 	resBody, err := ioutil.ReadAll(res.Body)
-	log.Println("recv file manager: ", resBody)
+
 	err = json.Unmarshal(resBody, &resStr)
 	if err != nil {
 		log.Println("error: ", err.Error())

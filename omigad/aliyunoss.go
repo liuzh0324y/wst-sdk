@@ -47,20 +47,21 @@ func (this AliyunOss) IsFileExist(name string) (bool, error) {
 }
 
 // Upload local file to the OSS server
-func (this AliyunOss) PutFile(name, file string) error {
+func (t AliyunOss) PutFile(name, file string) error {
 	options := []oss.Option{
 		// oss.Callback("ewogICAgImNhbGxiYWNrVXJsIjoiaHR0cDovLzEyMC43OS4yNS4xMTg6MTgwMTIvYXBpL3YxL2Nsb3Vkc3RvcmFnZS9jYWxsYmFjayIsCiAgICAiY2FsbGJhY2tCb2R5Ijoie1wiY29kZVwiOjB9Igp9Cg=="),
 	}
-	return this.bucket.PutObjectFromFile(name, file, options...)
+	return t.bucket.PutObjectFromFile(name, file, options...)
 }
 
-// Create the URL that want to upload file to the OSS server
-func (this AliyunOss) PutFileWithURL(filename string) (string, error) {
-	signedURL, err := this.bucket.SignURL(filename, oss.HTTPPut, 60*60)
+// PutFileWithURL Create the URL that want to upload file to the OSS server
+func (t AliyunOss) PutFileWithURL(filename string) (string, error) {
+	signedURL, err := t.bucket.SignURL(filename, oss.HTTPPut, 24*60*60)
 	if err != nil {
 		logs.Error(err.Error())
 		return "", err
 	}
+
 	return signedURL, nil
 }
 
